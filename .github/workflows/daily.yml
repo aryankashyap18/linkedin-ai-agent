@@ -1,1 +1,28 @@
+name: Daily LinkedIn Post
 
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - run: python generate_post.py
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add posts/
+          git commit -m "Generated LinkedIn post" || echo "Nothing to commit"
+          git push
